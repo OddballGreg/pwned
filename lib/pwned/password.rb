@@ -54,6 +54,7 @@ module Pwned
     def initialize(password, request_options={})
       raise TypeError, "password must be of type String" unless password.is_a? String
       @password = password
+      @proxy = Hash(request_options.delete(:proxy).dup)
       @request_options = Hash(request_options).dup
       @request_headers = Hash(request_options.delete(:headers))
       @request_headers = DEFAULT_REQUEST_HEADERS.merge(@request_headers)
@@ -95,7 +96,7 @@ module Pwned
 
     private
 
-    attr_reader :request_options, :request_headers
+    attr_reader :request_options, :request_headers, :proxy
 
     def fetch_pwned_count
       for_each_response_line do |line|
@@ -138,7 +139,16 @@ module Pwned
       request.initialize_http_header(request_headers)
       request_options[:use_ssl] = true
 
-      Net::HTTP.start(uri.host, uri.port, request_options) do |http|
+      net_proxy = if proxy && proxy[:host] && proxy[:port] && proxy[:user] && proxy[:password]
+        Net::HTTP::Proxy(proxy[:host], proxy[:port], proxy[:user], proxy[:password])
+      elsif proxy && proxy[:host] && proxy[:port]
+        puts 'Issuing request via proxy'
+        Net::HTTP::Proxy(proxy[:host], proxy[:port])
+      else
+        nil
+      end
+
+      (net_proxy || Net::HTTP).start(uri.host, uri.port, request_options) do |http|
         http.request(request, &block)
       end
     end
