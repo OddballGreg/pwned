@@ -139,6 +139,7 @@ module Pwned
       request.initialize_http_header(request_headers)
       request_options[:use_ssl] = true
 
+      binding.pry
       net_proxy = if proxy && proxy[:host] && proxy[:port] && proxy[:user] && proxy[:password]
         Net::HTTP::Proxy(proxy[:host], proxy[:port], proxy[:user], proxy[:password])
       elsif proxy && proxy[:host] && proxy[:port]
