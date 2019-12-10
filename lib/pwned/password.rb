@@ -142,7 +142,6 @@ module Pwned
       net_proxy = if proxy && proxy[:host] && proxy[:port] && proxy[:user] && proxy[:password]
         Net::HTTP::Proxy(proxy[:host], proxy[:port], proxy[:user], proxy[:password])
       elsif proxy && proxy[:host] && proxy[:port]
-        puts 'Issuing request via proxy'
         Net::HTTP::Proxy(proxy[:host], proxy[:port])
       else
         nil
